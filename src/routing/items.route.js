@@ -31,8 +31,7 @@ itemRouter.get("/filter-category/:month/", (req, res) => {
 
 //todo
 itemRouter.get("/combination/:month/", (req, res) => {
-  controller.statisticsByMonth(req, res);
+  controller.combinedFilter(req, res);
 });
-
 
 export default itemRouter;

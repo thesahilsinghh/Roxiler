@@ -36,123 +36,135 @@ export default class ItemRepo {
 
   //sale by month
   async saleInfo(month) {
-    let db = await getDB();
-    let collection = db.collection(collectionName);
-    const data = await collection
-      .aggregate([
-        {
-          $addFields: {
-            month: {
-              $month: { $dateFromString: { dateString: "$dateOfSale" } },
+    try {
+      let db = await getDB();
+      let collection = db.collection(collectionName);
+      const data = await collection
+        .aggregate([
+          {
+            $addFields: {
+              month: {
+                $month: { $dateFromString: { dateString: "$dateOfSale" } },
+              },
             },
           },
-        },
-        {
-          $match: {
-            month: parseInt(month),
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            totalSaleAmount: { $sum: "$price" },
-            totalSoldItems: {
-              $sum: { $cond: [{ $eq: ["$sold", true] }, 1, 0] },
-            },
-            totalNotSoldItems: {
-              $sum: { $cond: [{ $eq: ["$sold", false] }, 1, 0] },
+          {
+            $match: {
+              month: parseInt(month),
             },
           },
-        },
-        {
-          $project: {
-            _id: 0,
-            totalSaleAmount: 1,
-            totalSoldItems: 1,
-            totalNotSoldItems: 1,
+          {
+            $group: {
+              _id: null,
+              totalSaleAmount: { $sum: "$price" },
+              totalSoldItems: {
+                $sum: { $cond: [{ $eq: ["$sold", true] }, 1, 0] },
+              },
+              totalNotSoldItems: {
+                $sum: { $cond: [{ $eq: ["$sold", false] }, 1, 0] },
+              },
+            },
           },
-        },
-      ])
-      .toArray();
+          {
+            $project: {
+              _id: 0,
+              totalSaleAmount: 1,
+              totalSoldItems: 1,
+              totalNotSoldItems: 1,
+            },
+          },
+        ])
+        .toArray();
 
-    return data;
+      return data;
+    } catch (error) {
+      throw new Error("Error in saleInfo function \n" + error);
+    }
   }
 
   //price range
   async priceRange(month) {
-    let db = await getDB();
-    let collection = db.collection(collectionName);
-    let data = await collection
-      .aggregate([
-        {
-          $addFields: {
-            month: {
-              $month: { $dateFromString: { dateString: "$dateOfSale" } },
+    try {
+      let db = await getDB();
+      let collection = db.collection(collectionName);
+      let data = await collection
+        .aggregate([
+          {
+            $addFields: {
+              month: {
+                $month: { $dateFromString: { dateString: "$dateOfSale" } },
+              },
             },
           },
-        },
-        {
-          $match: {
-            month: parseInt(month),
-          },
-        },
-        {
-          $bucket: {
-            groupBy: "$price",
-            boundaries: [0, 101, 201, 301, 401, 501, 601, 701, 801, 901],
-            default: "901-above",
-            output: {
-              count: { $sum: 1 },
+          {
+            $match: {
+              month: parseInt(month),
             },
           },
-        },
-        {
-          $project: {
-            _id: 0,
-            priceRange: "$_id",
-            count: 1,
+          {
+            $bucket: {
+              groupBy: "$price",
+              boundaries: [0, 101, 201, 301, 401, 501, 601, 701, 801, 901],
+              default: "901-above",
+              output: {
+                count: { $sum: 1 },
+              },
+            },
           },
-        },
-      ])
-      .toArray();
+          {
+            $project: {
+              _id: 0,
+              priceRange: "$_id",
+              count: 1,
+            },
+          },
+        ])
+        .toArray();
 
-    return data;
+      return data;
+    } catch (error) {
+      throw new Error("Error in priceRange function \n" + error);
+    }
   }
 
   //category
   async categoryByMonth(month) {
-    let db = await getDB();
-    let collection = db.collection(collectionName);
-    let data = await collection
-      .aggregate([
-        {
-          $addFields: {
-            month: {
-              $month: { $dateFromString: { dateString: "$dateOfSale" } },
+    try {
+      let db = await getDB();
+      let collection = db.collection(collectionName);
+      let data = await collection
+        .aggregate([
+          {
+            $addFields: {
+              month: {
+                $month: { $dateFromString: { dateString: "$dateOfSale" } },
+              },
             },
           },
-        },
-        {
-          $match: {
-            month: parseInt(month),
+          {
+            $match: {
+              month: parseInt(month),
+            },
           },
-        },
-        {
-          $group: {
-            _id: "$category",
-            count: { $sum: 1 },
+          {
+            $group: {
+              _id: "$category",
+              count: { $sum: 1 },
+            },
           },
-        },
-        {
-          $project: {
-            _id: 0,
-            category: "$_id",
-            count: 1,
+          {
+            $project: {
+              _id: 0,
+              category: "$_id",
+              count: 1,
+            },
           },
-        },
-      ])
-      .toArray();
+        ])
+        .toArray();
 
-    return data;
+      return data;
+    } catch (error) {
+      throw new Error("Error in categoryByMonth function \n" + error);
+    }
   }
 }

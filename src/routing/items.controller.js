@@ -29,9 +29,8 @@ export default class ItemController {
   }
 
   async statisticsByMonth(req, res) {
-   
     try {
-      let month  = req.params.month;
+      let month = req.params.month;
       let data = await this.itemRepo.saleInfo(month);
       res.status(200).send(data);
     } catch (err) {
@@ -68,7 +67,7 @@ export default class ItemController {
       let data = await this.itemRepo.categoryByMonth(month);
       res.status(200).send(data);
     } catch (err) {
-      console.log(err)
+      console.log(err);
       res.status(500).send("Internal Server Error! please try again later");
     }
   }
@@ -76,5 +75,20 @@ export default class ItemController {
   //todo
   async combinedFilter(req, res) {
     //fetches the data from all the 3 APIs mentioned above, combines the response and sends a final response of the combined JSON
+    try {
+      let stat = await controller.statisticsByMonth(req.params.month);
+      let priceBar = await controller.representAsBar(req.params.month);
+      let cate = await controller.filterCategory(req.params.month);
+
+      let combinedData = {
+        Sales_statistics: stat,
+        Price_Bar: priceBar,
+        Category: cate,
+      };
+      res.status(200).send(combinedData);
+    } catch (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error! please try again later");
+    }
   }
 }
